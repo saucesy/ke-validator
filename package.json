@@ -1,0 +1,30 @@
+{
+  "name": "ke-validator",
+  "private": true,
+  "version": "1.5.0",
+  "description": "Lightweight and fast verifier for Koajs and Expressjs.",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saucesy/ke-validator.git"
+  },
+  "keywords": [
+    "koa",
+    "express",
+    "library",
+    "validator",
+    "javascript"
+  ],
+  "author": "saucesy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/saucesy/ke-validator/issues"
+  },
+  "homepage": "https://github.com/saucesy/ke-validator#readme",
+  "devDependencies": {
+    "rollup": "^3.2.5"
+  },
+  "dependencies": {
+    "validator": "^13.7.0"
+  }
+}
