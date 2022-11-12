@@ -1,19 +1,23 @@
-const Rule = require("./Rule");
-const RuleField = require("./RuleField");
-const RuleResult = require("./RuleResult");
-const {
+import Rule from "./Rule.js";
+import RuleField from "./RuleField.js";
+import RuleResult from "./RuleResult.js";
+
+import {
   get,
   isArray,
+  isObject,
   deepClone,
   findMembers,
-} = require("../utils");
+} from "../utils/index.js";
 
-const {
+import {
+  TypeException,
   OperateException,
   ParameterException,
-} = require("../exception");
+} from "../exception";
 
-class Validator {
+
+class KeValidator {
   constructor() {
     this.data = null;
   }
@@ -44,7 +48,7 @@ class Validator {
    */
   get(key, defaultValue) {
     if (!this.data) {
-      throw new OperateException("禁止在调用validate方法之前调用该方法");
+      throw new OperateException("The validate method is not allowed to be called before it is called.");
     }
     let value = null;
     for (const el of this._getDataKeys()) {
@@ -85,10 +89,13 @@ class Validator {
    *    }
    *  ……
    * @see https://github.com/saucesy/ke-validator#readme
-   * @param request - 请求对象
-   * @return {Validator}
+   * @param request - 请求上下文对象
+   * @return {KeValidator}
    */
   validate(request) {
+    if (!isObject(request)) {
+      throw new TypeException("The request must be an object type.");
+    }
     // 组装request请求对象上下文：{ path、query、body、header }
     const params = this._assembleParams(request);
     // 保存到data中，深拷贝！避免引用造成的潜在性问题
@@ -126,17 +133,17 @@ class Validator {
   }
   
   /**
-   * @param context
+   * @param request
    * @return {{path, query: any, header: *, body}}
    * @private
    */
-  _assembleParams(context) {
+  _assembleParams(request) {
     return {
-      path: context.params,
+      path: request.params,
       // 修复[object null prototype]没有原型的问题
-      query: JSON.parse(JSON.stringify(context.query)),
-      header: context.header,
-      body: context.request.body,
+      query: JSON.parse(JSON.stringify(request.query)),
+      header: request.header,
+      body: request.body,
     };
   }
   
@@ -174,12 +181,14 @@ class Validator {
     // 声明结果对象
     let result;
     // 是否为成员方法或者说是否为函数，如果是函数，那么就是自定义的 validateXxx 这种格式的函数
+    // @ts-ignore
     const isValidateFn = typeof (this[key]) === "function";
     // 该成员变量是方法时
     if (isValidateFn) {
       // 使用try/catch捕获函数执行抛出的异常
       try {
         // 执行
+        // @ts-ignore
         this[key](this.data);
         // 没有抛出异常，默认为true
         result = new RuleResult(true);
@@ -191,6 +200,7 @@ class Validator {
     // 该成员变量为属性时
     else {
       // 获取属性对应的值
+      // @ts-ignore
       const rules = this[key];
       // 实例化RuleField对象
       const ruleField = new RuleField(rules);
@@ -242,4 +252,4 @@ class Validator {
   }
 }
 
-module.exports = Validator;
+export default KeValidator;

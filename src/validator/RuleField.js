@@ -1,4 +1,4 @@
-const RuleFieldResult = require("./RuleFieldResult");
+import RuleFieldResult from "./RuleFieldResult.js";
 
 class RuleField {
   constructor(rules) {
@@ -64,4 +64,5 @@ class RuleField {
   }
 }
 
-module.exports = RuleField;
+export default RuleField;
+

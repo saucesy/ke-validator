@@ -1,7 +1,9 @@
-const OperateException = require("./OperateException");
-const ParameterException = require("./ParameterException");
+import TypeException from "./TypeException";
+import OperateException from "./OperateException";
+import ParameterException from "./ParameterException";
 
-module.exports = {
+export {
+  TypeException,
   OperateException,
   ParameterException,
 };

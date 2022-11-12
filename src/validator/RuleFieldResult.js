@@ -1,10 +1,11 @@
-const RuleResult = require("./RuleResult");
+import RuleResult from "./RuleResult";
 
 class RuleFieldResult extends RuleResult {
+
   constructor(pass, message = "", value = null) {
     super(pass, message);
     this.value = value;
   }
 }
 
-module.exports = RuleFieldResult;
+export default RuleFieldResult;

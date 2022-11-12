@@ -1,12 +1,14 @@
-const get = require("./get");
-const isArray = require("./isArray");
-const deepClone = require("./deepClone");
-const isFunction = require("./isFunction");
-const findMembers = require("./findMembers");
+import get from "./get";
+import isArray from "./isArray";
+import isObject from "./isObject";
+import deepClone from "./deepClone";
+import isFunction from "./isFunction";
+import findMembers from "./findMembers";
 
-module.exports = {
+export {
   get,
   isArray,
+  isObject,
   deepClone,
   isFunction,
   findMembers,

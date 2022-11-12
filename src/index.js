@@ -1,7 +1,3 @@
-const Rule = require("./validator/Rule");
-const Validator = require("./validator/Validator");
+import {Rule, KeValidator} from "./validator";
 
-module.exports = {
-  Rule,
-  Validator,
-};
+export {Rule, KeValidator};

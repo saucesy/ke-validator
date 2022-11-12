@@ -5,4 +5,4 @@ class RuleResult {
   }
 }
 
-module.exports = RuleResult;
+export default RuleResult;

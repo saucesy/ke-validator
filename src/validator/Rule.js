@@ -1,7 +1,8 @@
-const validator = require("validator");
-const RuleResult = require("./RuleResult");
+import validator from "validator/es";
+import RuleResult from "./RuleResult.js";
 
 class Rule {
+  
   constructor(name, message, params) {
     this.name = name;
     this.params = params;
@@ -19,4 +20,4 @@ class Rule {
   }
 }
 
-module.exports = Rule;
+export default Rule;

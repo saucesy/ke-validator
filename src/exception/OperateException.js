@@ -5,4 +5,4 @@ class OperateException extends Error {
   }
 }
 
-module.exports = OperateException;
+export default OperateException;

@@ -5,4 +5,4 @@ class ParameterException extends Error {
   }
 }
 
-module.exports = ParameterException;
+export default ParameterException;

@@ -24,4 +24,4 @@ function get(object, path, defaultValue) {
   return value;
 }
 
-module.exports = get;
+export default get;
