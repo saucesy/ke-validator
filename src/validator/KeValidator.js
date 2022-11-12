@@ -7,6 +7,8 @@ import {
   isArray,
   isObject,
   deepClone,
+  proxyData,
+  isFunction,
   findMembers,
 } from "../utils/index.js";
 
@@ -16,10 +18,9 @@ import {
   ParameterException,
 } from "../exception";
 
-
 class KeValidator {
   constructor() {
-    this.data = null;
+    this.$data = null;
   }
   
   /**
@@ -46,13 +47,13 @@ class KeValidator {
    *    - v.get("authorization") ===> 1010101
    * @see https://github.com/saucesy/ke-validator#readme
    */
-  get(key, defaultValue) {
-    if (!this.data) {
+  get(key, defaultValue = undefined) {
+    if (!this.$data) {
       throw new OperateException("The validate method is not allowed to be called before it is called.");
     }
     let value = null;
     for (const el of this._getDataKeys()) {
-      value = get(this.data, `${el}.${key}`, defaultValue);
+      value = get(this.$data, `${el}.${key}`, defaultValue);
       if (value) break;
     }
     return value;
@@ -64,7 +65,7 @@ class KeValidator {
    * 假如我们在做注册操作，需要对用户输入的用户名、密码、邮箱等做长度、强度、格式做校验
    * 你可以按照这样的操作来进行，当未通过规则时，你应该提前捕获异常，以免漏掉错误信息.
    *
-   * 1、创建一个RegisterValidator类，继承KEValidator
+   * 1、创建一个RegisterValidator类，继承KeValidator
    *  ……
    *    class RegisterValidator extends KEValidator {
    *      constructor() {
@@ -96,17 +97,18 @@ class KeValidator {
     if (!isObject(request)) {
       throw new TypeException("The request must be an object type.");
     }
-    // 组装request请求对象上下文：{ path、query、body、header }
-    const params = this._assembleParams(request);
-    // 保存到data中，深拷贝！避免引用造成的潜在性问题
-    this._setData(deepClone(params));
+    if (request.isValidate) {
+      throw new OperateException("Do not validate the same object twice.");
+    }
+    // 组装request请求对象上下文 并 保存到data中，深拷贝！避免引用造成的潜在性问题
+    this._setData(deepClone(this._assembleParams(request)));
     // 查找成员属性和方法
     const memberKeys = findMembers(this, {
       // 根据指定的filter函数
       filter: this._findMembersFilter.bind(this),
     });
     
-    // 声明错误集合，将错误信息保存在这中
+    // 声明错误集合，保存错误信息
     const errorMsg = [];
     // 遍历成员属性和方法组成的集合
     for (const key of memberKeys) {
@@ -121,6 +123,10 @@ class KeValidator {
     if (errorMsg.length) {
       throw new ParameterException(errorMsg);
     }
+    // 为验证对象添加标记，防止重复验证
+    this._punchMark(request);
+    // 将数据附加到实例上下文中
+    this._attachDataToContext();
     return this;
   }
   
@@ -129,7 +135,17 @@ class KeValidator {
    * @private
    */
   _setData(data) {
-    this.data = data;
+    this.$data = data;
+  }
+  
+  /**
+   * @param data
+   * @private
+   */
+  _punchMark(data) {
+    Object.defineProperty(data, "isValidate", {
+      value: true,
+    });
   }
   
   /**
@@ -139,12 +155,20 @@ class KeValidator {
    */
   _assembleParams(request) {
     return {
+      body: request.body,
       path: request.params,
+      header: request.headers,
       // 修复[object null prototype]没有原型的问题
       query: JSON.parse(JSON.stringify(request.query)),
-      header: request.header,
-      body: request.body,
     };
+  }
+  
+  /**
+   * 将数据附加到上下文中，使用户可以通过 validatorInstance.body.xxx 或者 validatorInstance.xxx 获取数据
+   * @private
+   */
+  _attachDataToContext() {
+    proxyData(this, this.$data, 2);
   }
   
   /**
@@ -180,21 +204,19 @@ class KeValidator {
   _check(key) {
     // 声明结果对象
     let result;
-    // 是否为成员方法或者说是否为函数，如果是函数，那么就是自定义的 validateXxx 这种格式的函数
-    // @ts-ignore
-    const isValidateFn = typeof (this[key]) === "function";
+    const isValidateFn = isFunction(this[key]);
     // 该成员变量是方法时
     if (isValidateFn) {
       // 使用try/catch捕获函数执行抛出的异常
       try {
         // 执行
         // @ts-ignore
-        this[key](this.data);
+        this[key](this.$data);
         // 没有抛出异常，默认为true
         result = new RuleResult(true);
       } catch (error) {
         // 如果抛出了异常，需要在这里捕获
-        result = new RuleResult(false, error.message || "参数错误");
+        result = new RuleResult(false, error.message || "Parameter Error.");
       }
     }
     // 该成员变量为属性时
@@ -211,7 +233,7 @@ class KeValidator {
     }
     if (!result.pass) {
       // 如果是验证函数，则不需要在错误信息前加 属性名
-      result.message = `${isValidateFn ? "" : key}${result.message}`;
+      result.message = `${isValidateFn ? "" : key} ${result.message}`;
     }
     return result;
   }
@@ -226,7 +248,7 @@ class KeValidator {
     let value;
     const path = [];
     for (const el of this._getDataKeys()) {
-      value = get(this.data, `${el}.${key}`);
+      value = get(this.$data, `${el}.${key}`);
       if (value) {
         path.push(el, key);
         break;
@@ -244,7 +266,7 @@ class KeValidator {
    * @private
    */
   _getDataKeys() {
-    const dataKeys = Object.keys(this.data);
+    const dataKeys = Object.keys(this.$data);
     this._getDataKeys = function () {
       return dataKeys;
     };

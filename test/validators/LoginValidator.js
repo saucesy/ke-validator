@@ -1,4 +1,4 @@
-import {KeValidator, Rule} from "../../src/index.js";
+import {KeValidator, Rule} from "../../dist/ke-validator.esm.js";
 
 class LoginValidator extends KeValidator {
   constructor() {
@@ -12,12 +12,11 @@ class LoginValidator extends KeValidator {
         "Password need to be between 6 and 32 characters long.",
         {min: 6, max: 32},
       ),
-      new Rule(
-        "matches",
-        "The password is not strong enough. It needs to include numbers, letters, and special characters.",
-        /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[^\da-zA-Z\s]).{6,32}$/,
-      ),
     ];
+    
+    this.validateFn = function (v) {
+      // throw new Error("There's a mistake here.");
+    }
   }
 }
 

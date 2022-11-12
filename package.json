@@ -15,7 +15,7 @@
     "validator"
   ],
   "scripts": {
-    "test": "jest",
+    "test": "jest --watch test",
     "clean": "npx rimraf dist",
     "lint": "npx eslint src/**/*.js",
     "build": "npm run lint && npm run clean && rollup -c rollup.config.js"
@@ -32,7 +32,6 @@
   "devDependencies": {
     "@babel/core": "^7.20.2",
     "@babel/preset-env": "^7.20.2",
-    "@rollup/plugin-babel": "^6.0.2",
     "@types/jest": "^29.2.2",
     "eslint": "^8.27.0",
     "jest": "^29.3.1",

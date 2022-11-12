@@ -18,8 +18,8 @@ function get(object, path, defaultValue) {
     value = value[path.shift()];
     if (!value) break;
   }
-  // 如果value不存在（0、undefined、null……）则赋值为 defaultValue
-  value = value === undefined ? value : defaultValue;
+  // 如果value等于undefined则使用defaultValue
+  value = value !== undefined ? value : defaultValue;
   // return
   return value;
 }

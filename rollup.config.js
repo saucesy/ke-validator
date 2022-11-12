@@ -1,4 +1,3 @@
-import babel from "@rollup/plugin-babel";
 import cleanup from "rollup-plugin-cleanup";
 import {eslint} from "rollup-plugin-eslint";
 import commonjs from "rollup-plugin-commonjs";
@@ -23,14 +22,13 @@ export default {
     eslint({
       include: ["src/**/*.js"],
     }),
-    cleanup(),
+    cleanup({
+      comments: /\/\/.*/g,
+      // compactComments: false
+    }),
     resolve(),
     commonjs({
       include: "node_modules/**",
-    }),
-    babel({
-      babelHelpers: "bundled",
-      exclude: "node_modules/**",
     }),
     filesize(),
   ],
