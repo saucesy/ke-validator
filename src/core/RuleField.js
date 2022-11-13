@@ -12,7 +12,7 @@ class RuleField {
       if (isAllowEmpty) {
         return new RuleFieldResult(true, "");
       } else {
-        return new RuleFieldResult(false, "字段是必填参数");
+        return new RuleFieldResult(false, field + " 字段是必填参数");
       }
     }
     

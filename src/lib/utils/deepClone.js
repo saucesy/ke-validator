@@ -19,7 +19,7 @@ function deepClone(object) {
   const target = new object.__proto__.constructor;
   
   for (const key in object) {
-    if (Object.prototype.hasOwnProperty.call(object, key)) {
+    if (Object.hasOwnProperty.call(object, key)) {
       target[key] = deepClone(object[key]);
     }
   }

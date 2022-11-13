@@ -1,21 +1,21 @@
+import babel from "@rollup/plugin-babel";
 import cleanup from "rollup-plugin-cleanup";
 import {eslint} from "rollup-plugin-eslint";
 import commonjs from "rollup-plugin-commonjs";
 import filesize from "rollup-plugin-filesize";
 import resolve from "rollup-plugin-node-resolve";
 
-const name = "ke-validator";
-
 export default {
   input: "src/index.js",
+  external: ["validator/es"],
   output: [
     {
-      file: `dist/${name}.js`,
-      format: "cjs",
+      file: "dist/ke-validator.es.js",
+      format: "es",
     },
     {
-      file: `dist/${name}.esm.js`,
-      format: "es",
+      file: "dist/ke-validator.cjs.js",
+      format: "cjs",
     },
   ],
   plugins: [
@@ -29,6 +29,10 @@ export default {
     resolve(),
     commonjs({
       include: "node_modules/**",
+    }),
+    babel({
+      babelHelpers: "bundled",
+      exclude: "node_modules/**",
     }),
     filesize(),
   ],

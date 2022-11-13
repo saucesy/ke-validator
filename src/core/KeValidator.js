@@ -4,13 +4,13 @@ import RuleResult from "./RuleResult.js";
 
 import {
   get,
+  dfs,
   isArray,
   isObject,
   deepClone,
   proxyData,
   isFunction,
-  findMembers,
-} from "../utils/index.js";
+} from "../lib/utils/index.js";
 
 import {
   TypeException,
@@ -21,6 +21,7 @@ import {
 class KeValidator {
   constructor() {
     this.$data = null;
+    this.$fields = ["params", "query", "headers", "body"];
   }
   
   /**
@@ -90,24 +91,22 @@ class KeValidator {
    *    }
    *  ……
    * @see https://github.com/saucesy/ke-validator#readme
-   * @param request - 请求上下文对象
+   * @param {object} object - 请求上下文对象
    * @return {KeValidator}
    */
-  validate(request) {
-    if (!isObject(request)) {
+  validate(object) {
+    if (!isObject(object)) {
       throw new TypeException("The request must be an object type.");
     }
-    if (request.isValidate) {
+    if (object.isValidate) {
       throw new OperateException("Do not validate the same object twice.");
     }
-    // 组装request请求对象上下文 并 保存到data中，深拷贝！避免引用造成的潜在性问题
-    this._setData(deepClone(this._assembleParams(request)));
+    // 组装新对象
+    const params = this._assembleParams(object);
+    // 保存参数
+    this._setData(params);
     // 查找成员属性和方法
-    const memberKeys = findMembers(this, {
-      // 根据指定的filter函数
-      filter: this._findMembersFilter.bind(this),
-    });
-    
+    const memberKeys = this._findMembers();
     // 声明错误集合，保存错误信息
     const errorMsg = [];
     // 遍历成员属性和方法组成的集合
@@ -124,7 +123,7 @@ class KeValidator {
       throw new ParameterException(errorMsg);
     }
     // 为验证对象添加标记，防止重复验证
-    this._punchMark(request);
+    this._punchMark(object);
     // 将数据附加到实例上下文中
     this._attachDataToContext();
     return this;
@@ -135,7 +134,7 @@ class KeValidator {
    * @private
    */
   _setData(data) {
-    this.$data = data;
+    this.$data = deepClone(data);
   }
   
   /**
@@ -143,24 +142,32 @@ class KeValidator {
    * @private
    */
   _punchMark(data) {
-    Object.defineProperty(data, "isValidate", {
-      value: true,
-    });
+    Object.defineProperty(
+      data,
+      "isValidate",
+      {
+        value: true,
+      },
+    );
   }
   
   /**
-   * @param request
+   * @param {object} object
    * @return {{path, query: any, header: *, body}}
    * @private
    */
-  _assembleParams(request) {
-    return {
-      body: request.body,
-      path: request.params,
-      header: request.headers,
-      // 修复[object null prototype]没有原型的问题
-      query: JSON.parse(JSON.stringify(request.query)),
-    };
+  _assembleParams(object) {
+    const params = {};
+    for (const field of this.$fields) {
+      const value = dfs(object, field);
+      if (value) {
+        params[field] = value;
+      }
+      if (field === "query") {
+        params[field] = JSON.parse(JSON.stringify(value));
+      }
+    }
+    return params;
   }
   
   /**
@@ -172,25 +179,41 @@ class KeValidator {
   }
   
   /**
+   * @return {*[]}
+   * @private
+   */
+  _findMembers() {
+    let proto = this;
+    const members = [];
+    while (proto !== KeValidator.prototype) {
+      const names = Object.getOwnPropertyNames(proto);
+      for (const name of names) {
+        this._findMembersFilter(name) && members.push(name);
+      }
+      proto = proto.__proto__;
+    }
+    return members;
+  }
+  
+  /**
    * @param key
    * @return {boolean}
    * @private
    */
   _findMembersFilter(key) {
-    // 验证方法是否为 validateXxx 这种格式
-    if (/^validate([A-Z]\w+)+$/.test(key)) {
+    if (key === "constructor") {
+      return false;
+    }
+    
+    const value = this[key];
+    if (isFunction(value)) {
       return true;
     }
-    // 如果是数组，数组元素必须是Rule类型
-    if (isArray(this[key])) {
-      // 遍历数组
-      this[key].forEach((rule) => {
-        const isRuleType = rule instanceof Rule;
-        if (!isRuleType) {
-          throw new Error("Verify that the elements of the array must be of type Rule.");
-        }
-      });
-      // 如果没有抛出异常，则通过
+    if (isArray(value)) {
+      const isRuleType = value.every((v) => v instanceof Rule);
+      if (!isRuleType) {
+        throw new Error("Verify that the elements of the array must be of type Rule.");
+      }
       return true;
     }
     return false;
@@ -198,20 +221,18 @@ class KeValidator {
   
   /**
    * @param key
-   * @return {{pass}}
+   * @return {RuleResult}
    * @private
    */
   _check(key) {
     // 声明结果对象
     let result;
-    const isValidateFn = isFunction(this[key]);
     // 该成员变量是方法时
-    if (isValidateFn) {
+    if (isFunction(this[key])) {
       // 使用try/catch捕获函数执行抛出的异常
       try {
         // 执行
-        // @ts-ignore
-        this[key](this.$data);
+        this[key](this);
         // 没有抛出异常，默认为true
         result = new RuleResult(true);
       } catch (error) {
@@ -222,55 +243,24 @@ class KeValidator {
     // 该成员变量为属性时
     else {
       // 获取属性对应的值
-      // @ts-ignore
       const rules = this[key];
       // 实例化RuleField对象
       const ruleField = new RuleField(rules);
       // 通过key（验证器的属性）找到对应（客户端传来的）的值
       const params = this._findParams(key);
       // 校验值
-      result = ruleField.validate(params.value);
-    }
-    if (!result.pass) {
-      // 如果是验证函数，则不需要在错误信息前加 属性名
-      result.message = `${isValidateFn ? "" : key} ${result.message}`;
+      result = ruleField.validate(params);
     }
     return result;
   }
   
   /**
-   * 通过指定的key从组装的data属性对象中获取值
    * @param key
    * @return {{path: *[], value}}
    * @private
    */
   _findParams(key) {
-    let value;
-    const path = [];
-    for (const el of this._getDataKeys()) {
-      value = get(this.$data, `${el}.${key}`);
-      if (value) {
-        path.push(el, key);
-        break;
-      }
-    }
-    return {
-      path,
-      value,
-    };
-  }
-  
-  /**
-   * 获取data对象中所有属性的key
-   * @return {Array}
-   * @private
-   */
-  _getDataKeys() {
-    const dataKeys = Object.keys(this.$data);
-    this._getDataKeys = function () {
-      return dataKeys;
-    };
-    return this._getDataKeys();
+    return dfs(this.$data, key);
   }
 }
 

@@ -98,3 +98,12 @@ typings/
 
 # TernJS port file
 .tern-port
+
+# use npm publish
+#src
+#test
+#.eslintrc.json
+#.gitignore
+#babel.config.js
+#jest.config.cjs
+#rollup.config.js

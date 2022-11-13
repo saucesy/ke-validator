@@ -1,15 +1,23 @@
-import {deepClone, findMembers, get} from "../src/utils";
+import {deepClone, dfs, get} from "../src/lib/utils";
 
 describe("utils", () => {
   
-  const object = {
-    a: {
-      b: {
-        c: 30,
+  let object = null;
+  
+  beforeEach(() => {
+    object = {
+      a: {
+        b: {
+          c: 30,
+        },
+        d: [{e: {f: 10}}],
       },
-      d: [{e: {f: 10}}],
-    },
-  };
+    };
+  });
+  
+  afterEach(() => {
+    object = null;
+  });
   
   describe("get", () => {
     
@@ -35,7 +43,6 @@ describe("utils", () => {
       expect(newObject).not.toEqual(object);
     });
     
-    
     test("修改原对象属性数组中对象的属性不会影响克隆出来的新对象", () => {
       const newObject = deepClone(object);
       object.a.d[0].e.f = 200;
@@ -44,50 +51,14 @@ describe("utils", () => {
     
   });
   
-  describe.only("findMembers", () => {
+  describe("dfs", () => {
     
-    class A {
-      constructor() {
-        this.nameA = "a";
-      }
-      
-      validateA() {
-      }
-    }
-    
-    class B extends A {
-      constructor() {
-        super();
-        this.nameB = "b";
-      }
-      
-      validateB() {
-      }
-    }
-    
-    const b = new B();
-    
-    test("能够根据传入的filter函数筛选出指定的方法", () => {
-      const filters = findMembers(b, {
-        filter(field) {
-          if (/^validate([A-Z]\w*)+$/.test(field)) {
-            return true;
-          }
-        },
-      });
-      expect(filters).toEqual(["validateB", "validateA"]);
+    test("传入字段 c 等于 30", () => {
+      expect(dfs(object, "c")).toBe(30);
     });
     
-    test("能够根据传入的filter函数筛选出指定的属性", () => {
-      const filters = findMembers(b, {
-        filter(field) {
-          if (field.startsWith("name")) {
-            return true;
-          }
-        },
-      });
-      expect(filters).toEqual(["nameA", "nameB"]);
+    test("传入字段 b 等于 {c: 30}", () => {
+      expect(dfs(object, "b")).toEqual({c: 30});
     });
-    
   });
 });

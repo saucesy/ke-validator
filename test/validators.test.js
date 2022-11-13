@@ -37,7 +37,7 @@ describe("LoginValidator", () => {
       }).toThrow();
     });
     
-    test.only("多次调用validate方法传入同一对象", () => {
+    test("多次调用validate方法传入同一对象", () => {
       expect(() => {
         loginValidator.validate(request);
         loginValidator.validate(request);
