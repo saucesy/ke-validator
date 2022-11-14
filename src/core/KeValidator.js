@@ -209,7 +209,7 @@ class KeValidator {
    * @private
    */
   _findMembersFilter(key) {
-    if (key === "constructor") {
+    if (key === "constructor" || key === "$fields") {
       return false;
     }
     
@@ -217,7 +217,8 @@ class KeValidator {
     if (isFunction(value)) {
       return true;
     }
-    if (isArray(value)) {
+    
+    if (isArray(value) && key) {
       const isRuleType = value.every((v) => v instanceof Rule);
       if (!isRuleType) {
         throw new Error("Verify that the elements of the array must be of type Rule.");
@@ -259,14 +260,14 @@ class KeValidator {
       // 通过key（验证器的属性）找到对应（客户端传来的）的值
       const params = this._findParams(key);
       // 校验值
-      result = ruleField.validate(params);
+      result = ruleField.validate({key, value: params});
     }
     return result;
   }
   
   /**
    * @param key
-   * @return {{path: *[], value}}
+   * @return {*}
    * @private
    */
   _findParams(key) {

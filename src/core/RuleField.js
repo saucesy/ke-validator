@@ -5,21 +5,21 @@ class RuleField {
     this.rules = rules;
   }
   
-  validate(field) {
-    if (!field) {
+  validate({key, value}) {
+    if (!value) {
       const isAllowEmpty = this._allowEmpty();
       
       if (isAllowEmpty) {
         return new RuleFieldResult(true, "");
       } else {
-        return new RuleFieldResult(false, field + " 字段是必填参数");
+        return new RuleFieldResult(false, key + " 字段是必填参数");
       }
     }
     
     const fieldResult = new RuleFieldResult(false);
     
     for (const rule of this.rules) {
-      const result = rule.validate(field);
+      const result = rule.validate(value);
       if (!result.pass) {
         fieldResult.value = null;
         fieldResult.message = result.message;
@@ -27,7 +27,7 @@ class RuleField {
       }
     }
     
-    return new RuleFieldResult(true, "", this._convert(field));
+    return new RuleFieldResult(true, "", this._convert(value));
   }
   
   /**

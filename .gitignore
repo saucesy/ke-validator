@@ -104,6 +104,6 @@ typings/
 #test
 #.eslintrc.json
 #.gitignore
-#babel.config.js
+#babel.config.json
 #jest.config.js
 #rollup.config.js

@@ -3,7 +3,6 @@
   "version": "1.6.0",
   "description": "Lightweight and fast verifier for Koajs and Expressjs.",
   "main": "dist/ke-validator.cjs.js",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/saucesy/ke-validator.git"

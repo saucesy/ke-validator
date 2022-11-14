@@ -34,6 +34,6 @@ export default {
       babelHelpers: "bundled",
       exclude: "node_modules/**",
     }),
-    filesize(),
+    filesize()
   ],
 };
