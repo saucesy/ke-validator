@@ -18,8 +18,10 @@ class LoginValidator extends KeValidator {
       }),
     ];
     
-    this.validateFn = function (v) {
-      throw new Error("There's a mistake here.");
+    this.repassword = function (value, {password}) {
+      if (value !== password) {
+        throw new Error("The passwords are not equal." + value + "---" + password);
+      }
     };
   }
 }
