@@ -2,7 +2,7 @@ import LoginValidator from "./validators/LoginValidator.js";
 
 describe("LoginValidator", () => {
   const request = {
-    body: {username: "saucesy", password: "123456", repassword: "123456"},
+    body: {username: "saucesy", password: "123456", repassword: "12345"},
     query: {page: 10},
     params: {uid: "fdb30486-ad9e-4c68-b50e-8450ea205244"},
     headers: {authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"},
@@ -18,7 +18,7 @@ describe("LoginValidator", () => {
     loginValidator = null;
   });
   
-  describe.only("validate 方法执行前", () => {
+  describe("validate 方法执行前", () => {
     test("未调用validate方法之前调用get会抛出异常", () => {
       expect(() => {
         loginValidator.get("");
@@ -31,7 +31,7 @@ describe("LoginValidator", () => {
       }).toThrow("The request must be an object type.");
     });
     
-    test.only("调用validate方法未通过校验会抛出异常", () => {
+    test("调用validate方法未通过校验会抛出异常", () => {
       expect(() => {
         loginValidator.validate(request);
       }).toThrow();
@@ -45,10 +45,10 @@ describe("LoginValidator", () => {
     });
   });
   
-  describe("validate 方法执行时", () => {
-    beforeAll(() => {
-      loginValidator.validate(request);
-    });
+  describe.only("validate 方法执行时", () => {
+    // beforeAll(() => {
+    //   loginValidator.validate(request);
+    // });
     
     test("调用get方法能成功获取用户名", () => {
       const username = loginValidator.get("username");
@@ -95,8 +95,8 @@ describe("LoginValidator", () => {
       loginValidator.validate(request);
       expect(loginValidator.validateFn).toBeCalled();
     });
-    
-    test("LoginValidator.validateFn函数抛出了异常，会被validate方法捕捉并相继抛出", () => {
+
+    test.only("LoginValidator.verifyPassword函数抛出了异常，会被validate方法捕捉并相继抛出", () => {
       expect(() => {
         loginValidator.validate(request);
       }).toThrow();
