@@ -1,6 +1,6 @@
 'use strict';
 
-var validator = require('validator/es');
+var validator = require('validator');
 
 class RuleResult {
   constructor(pass, message = "") {
@@ -41,25 +41,28 @@ class RuleField {
   constructor(rules) {
     this.rules = rules;
   }
-  validate(field) {
-    if (!field) {
+  validate({
+    key,
+    value
+  }) {
+    if (!value) {
       const isAllowEmpty = this._allowEmpty();
       if (isAllowEmpty) {
         return new RuleFieldResult(true, "");
       } else {
-        return new RuleFieldResult(false, field + " 字段是必填参数");
+        return new RuleFieldResult(false, key + " 字段是必填参数");
       }
     }
     const fieldResult = new RuleFieldResult(false);
     for (const rule of this.rules) {
-      const result = rule.validate(field);
+      const result = rule.validate(value);
       if (!result.pass) {
         fieldResult.value = null;
         fieldResult.message = result.message;
         return fieldResult;
       }
     }
-    return new RuleFieldResult(true, "", this._convert(field));
+    return new RuleFieldResult(true, "", this._convert(value));
   }
   _allowEmpty() {
     for (const rule of this.rules) {
@@ -225,7 +228,7 @@ class KeValidator {
       throw new OperateException("The validate method is not allowed to be called before it is called.");
     }
     let value = null;
-    for (const el of this._getDataKeys()) {
+    for (const el of this.$fields) {
       value = get(this.$data, `${el}.${key}`, defaultValue);
       if (value) break;
     }
@@ -262,7 +265,7 @@ class KeValidator {
    *    }
    *  ……
    * @see https://github.com/saucesy/ke-validator#readme
-   * @param {object} object - 请求上下文对象
+   * @param {object} object - 数据源
    * @return {KeValidator}
    */
   validate(object) {
@@ -310,6 +313,9 @@ class KeValidator {
     }
     return params;
   }
+  _assembleCompactParams() {
+    return this.$fields.reduce((params, field) => Object.assign(params, this._findParams(field)), {});
+  }
   _attachDataToContext() {
     proxyData(this, this.$data, 2);
   }
@@ -326,14 +332,14 @@ class KeValidator {
     return members;
   }
   _findMembersFilter(key) {
-    if (key === "constructor") {
+    if (key === "constructor" || key === "$fields") {
       return false;
     }
     const value = this[key];
     if (isFunction(value)) {
       return true;
     }
-    if (isArray(value)) {
+    if (isArray(value) && key) {
       const isRuleType = value.every(v => v instanceof Rule);
       if (!isRuleType) {
         throw new Error("Verify that the elements of the array must be of type Rule.");
@@ -346,7 +352,9 @@ class KeValidator {
     let result;
     if (isFunction(this[key])) {
       try {
-        this[key](this);
+        const row = this._createRow();
+        const value = this._findParams(key);
+        this[key](value, row);
         result = new RuleResult(true);
       } catch (error) {
         result = new RuleResult(false, error.message || "Parameter Error.");
@@ -355,12 +363,18 @@ class KeValidator {
       const rules = this[key];
       const ruleField = new RuleField(rules);
       const params = this._findParams(key);
-      result = ruleField.validate(params);
+      result = ruleField.validate({
+        key,
+        value: params
+      });
     }
     return result;
   }
   _findParams(key) {
     return dfs(this.$data, key);
+  }
+  _createRow() {
+    return deepClone(this._assembleCompactParams());
   }
 }
 

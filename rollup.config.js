@@ -7,7 +7,7 @@ import resolve from "rollup-plugin-node-resolve";
 
 export default {
   input: "src/index.js",
-  external: ["validator/es"],
+  external: ["validator"],
   output: [
     {
       file: "dist/ke-validator.es.js",
