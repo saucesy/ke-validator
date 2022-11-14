@@ -102,34 +102,26 @@ function get(object, path, defaultValue) {
   return value;
 }
 
-function getKeys(object) {
-  if (typeof object !== "object" || object === null) {
-    return [];
-  }
-  return Object.keys(object);
+function isObject(value) {
+  return Object.prototype.toString.call(value) === "[object Object]" && value !== null;
 }
 
 function dfs(object, field) {
-  let res;
-  function search(data, key) {
-    if (key === field) {
-      return res = data;
+  let value = null;
+  const _search = data => {
+    if (!isObject(data)) return;
+    value = data[field];
+    for (const key in data) {
+      if (value) break;
+      _search(data[key]);
     }
-    const keys = getKeys(data);
-    for (const key of keys) {
-      search(data[key], key);
-    }
-  }
-  search(object);
-  return res;
+  };
+  _search(object);
+  return value;
 }
 
 function isArray(arr) {
   return Object.prototype.toString.call(arr) === "[object Array]";
-}
-
-function isObject(value) {
-  return Object.prototype.toString.call(value) === "[object Object]" && value !== null;
 }
 
 function deepClone(object) {

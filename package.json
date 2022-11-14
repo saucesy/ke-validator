@@ -1,8 +1,9 @@
 {
   "name": "ke-validator",
-  "version": "1.6.5",
+  "private": true,
+  "version": "1.6.6",
   "description": "Lightweight and fast verifier for Koajs and Expressjs.",
-  "main": "dist/ke-validator.cjs.js",
+  "main": "ke-validator.js",
   "type": "module",
   "repository": {
     "type": "git",

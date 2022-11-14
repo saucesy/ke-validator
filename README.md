@@ -60,8 +60,8 @@ class RegisterValidator extendes KeValidator {
                 options: {min: 8, max: 32},
             })
         ];
-        this.repassword = function(value, {password}) {
-            if(value !== password) {
+        this.repassword = function(row) {
+            if(row.repassword !== row.password) {
                 throw new Error("两次密码输入不一致，请重新输入");
             }
         }
@@ -124,8 +124,8 @@ class RegisterValidator extendes KeValidator {
                 options: {min: 8, max: 32},
             })
         ];
-        this.repassword = function(value, {password}) {
-            if(value !== password) {
+        this.repassword = function(row) {
+            if(row.repassword !== row.password) {
                 throw new Error("两次密码输入不一致，请重新输入");
             }
         }
