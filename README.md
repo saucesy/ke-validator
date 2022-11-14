@@ -196,9 +196,9 @@ curl -i http://localhost:3000 -d "username=test123&password=12345678&repassword=
 
 > 在继承`KeValidator`基类时，你所添加的每个属性或方法应该满足以下条件：
 
-- 你可以为成员属性赋值为函数，这是允许的。
+- 你可以为属性赋值为函数，也可以直接写方法，这是允许的。
 
-  - `ke-validator`会将当前属性名对应的数据和当前验证的所有数据源返回给你，见示例：
+  - `ke-validator`会将当前验证的所有数据源返回给你，见示例：
 
   ```javascript
   	class RegisterValidator extendes KeValidator {
@@ -207,15 +207,17 @@ curl -i http://localhost:3000 -d "username=test123&password=12345678&repassword=
               this.password = [
                   // ...
               ];
-              this.repassword = function(value, row) {
-                  if(value !== row.password) {
+              
+              // 方式一
+              this.repassword = function(row) {
+                  if(row.repassword !== row.password) {
                       throw new Error("Some problems have arisen");
                   }
               }
           }
-          
-          verifyPassword(value, row) {
-              if(value !== row.password) {
+          // 方式二
+          verifyPassword({repassword, password}) {
+              if(repassword !== password) {
               	throw new Error("Some problems have arisen");
               }
           }
