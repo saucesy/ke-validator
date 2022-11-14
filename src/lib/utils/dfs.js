@@ -1,22 +1,22 @@
-import getKeys from "./getKeys.js";
+import isObject from "./isObject.js";
+
 /**
  * @param {object} object
  * @param {string} field
  * @return {*}
  */
 function dfs(object, field) {
-  let res;
-  function search(data, key) {
-    if (key === field) {
-      return res = data;
+  let value = null;
+  const _search = (data) => {
+    if (!isObject(data)) return;
+    value = data[field];
+    for (const key in data) {
+      if (value) break;
+      _search(data[key]);
     }
-    const keys = getKeys(data);
-    for (const key of keys) {
-      search(data[key], key);
-    }
-  }
-  search(object);
-  return res;
+  };
+  _search(object);
+  return value;
 }
 
 export default dfs;
