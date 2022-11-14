@@ -10,13 +10,13 @@ import {
   deepClone,
   proxyData,
   isFunction,
-} from "../lib/utils/index.js";
+} from "../lib/utils";
 
 import {
   TypeException,
   OperateException,
   ParameterException,
-} from "../exception";
+} from "../lib/exception";
 
 class KeValidator {
   constructor() {
@@ -53,7 +53,7 @@ class KeValidator {
       throw new OperateException("The validate method is not allowed to be called before it is called.");
     }
     let value = null;
-    for (const el of this._getDataKeys()) {
+    for (const el of this.$fields) {
       value = get(this.$data, `${el}.${key}`, defaultValue);
       if (value) break;
     }
@@ -91,7 +91,7 @@ class KeValidator {
    *    }
    *  ……
    * @see https://github.com/saucesy/ke-validator#readme
-   * @param {object} object - 请求上下文对象
+   * @param {object} object - 数据源
    * @return {KeValidator}
    */
   validate(object) {
@@ -101,7 +101,7 @@ class KeValidator {
     if (object.isValidate) {
       throw new OperateException("Do not validate the same object twice.");
     }
-    // 组装新对象
+    // 组装对象
     const params = this._assembleParams(object);
     // 保存参数
     this._setData(params);
