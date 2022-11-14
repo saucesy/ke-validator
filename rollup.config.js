@@ -10,7 +10,7 @@ export default {
   external: ["validator"],
   output: [
     {
-      file: "dist/ke-validator.cjs..js",
+      file: "dist/ke-validator.cjs.js",
       format: "cjs",
     },
     {
