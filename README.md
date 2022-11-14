@@ -69,7 +69,7 @@ class RegisterValidator extendes KeValidator {
 }
 
 app.use((context) => {
-    const v = new RegisterValidator().validate(context.request);
+    const v = new RegisterValidator().validate(context);
    	context.body = {
         code: 0,
         message: "OK",
