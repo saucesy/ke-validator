@@ -17,12 +17,12 @@ class LoginValidator extends KeValidator {
         options: {min: 6, max: 32},
       }),
     ];
-    
-    this.repassword = function (value, {password}) {
-      if (value !== password) {
-        throw new Error("The passwords are not equal." + value + "---" + password);
-      }
-    };
+  }
+  
+  verifyPassword(row) {
+    if (row.repassword !== row.password) {
+      throw new Error("The password is different twice.");
+    }
   }
 }
 

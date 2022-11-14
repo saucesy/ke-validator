@@ -241,9 +241,8 @@ class KeValidator {
       // 使用try/catch捕获函数执行抛出的异常
       try {
         const row = this._createRow();
-        const value = this._findParams(key);
         // 执行
-        this[key](value, row);
+        this[key](row);
         // 没有抛出异常，默认为true
         result = new RuleResult(true);
       } catch (error) {
