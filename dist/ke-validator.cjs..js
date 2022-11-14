@@ -353,8 +353,7 @@ class KeValidator {
     if (isFunction(this[key])) {
       try {
         const row = this._createRow();
-        const value = this._findParams(key);
-        this[key](value, row);
+        this[key](row);
         result = new RuleResult(true);
       } catch (error) {
         result = new RuleResult(false, error.message || "Parameter Error.");
