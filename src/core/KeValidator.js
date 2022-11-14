@@ -153,7 +153,7 @@ class KeValidator {
   
   /**
    * @param {object} object
-   * @return {{path, query: any, header: *, body}}
+   * @return {object}
    * @private
    */
   _assembleParams(object) {
@@ -168,6 +168,14 @@ class KeValidator {
       }
     }
     return params;
+  }
+  
+  /**
+   * @return {object}
+   * @private
+   */
+  _assembleCompactParams() {
+    return this.$fields.reduce((params, field) => Object.assign(params, this._findParams(field)), {});
   }
   
   /**
@@ -231,8 +239,10 @@ class KeValidator {
     if (isFunction(this[key])) {
       // 使用try/catch捕获函数执行抛出的异常
       try {
+        const row = this._createRow();
+        const value = this._findParams(key);
         // 执行
-        this[key](this);
+        this[key](value, row);
         // 没有抛出异常，默认为true
         result = new RuleResult(true);
       } catch (error) {
@@ -261,6 +271,14 @@ class KeValidator {
    */
   _findParams(key) {
     return dfs(this.$data, key);
+  }
+  
+  /**
+   * @return {*}
+   * @private
+   */
+  _createRow() {
+    return deepClone(this._assembleCompactParams());
   }
 }
 
