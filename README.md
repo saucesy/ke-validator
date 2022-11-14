@@ -181,7 +181,7 @@ curl -i http://localhost:3000 -d "username=test123&password=12345678&repassword=
 
 ## Trilogy
 
-#### parse
+### parse
 
 > `ke-validator`的`validate`方法会自动从传入的参数中解析出需要的数据，假如传入的是参数名为`object`：
 
@@ -192,7 +192,7 @@ curl -i http://localhost:3000 -d "username=test123&password=12345678&repassword=
 | body   | 请求体，会自动从参数 object 中寻找名为 body 的属性       |
 | header | 请求头，会自动从参数 object 中寻找名为 headers 的属性    |
 
-#### validate
+### validate
 
 > 在继承`KeValidator`基类时，你所添加的每个属性或方法应该满足以下条件：
 
@@ -249,7 +249,7 @@ new Rule({
 
 
 
-#### get
+### get
 
 > `ke-validator`为你提供了多种便捷的取值方式。注意：这仅在验证数据通过后！。
 
