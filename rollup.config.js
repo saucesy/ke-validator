@@ -23,15 +23,14 @@ export default {
       include: ["src/**/*.js"],
     }),
     cleanup({
-      comments: /\/\/.*/g,
-      // compactComments: false
+      comments: /\/\/.*/igm
     }),
     resolve(),
     commonjs({
       include: "node_modules/**",
     }),
     babel({
-      babelHelpers: "bundled",
+      // babelHelpers: "bundled",
       exclude: "node_modules/**",
     }),
     filesize()

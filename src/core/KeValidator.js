@@ -265,6 +265,7 @@ class KeValidator {
   }
   
   /**
+   * 查询参数
    * @param key
    * @return {*}
    * @private
@@ -274,6 +275,7 @@ class KeValidator {
   }
   
   /**
+   * 创建
    * @return {*}
    * @private
    */
