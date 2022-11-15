@@ -30,7 +30,7 @@ export default {
       include: "node_modules/**",
     }),
     babel({
-      // babelHelpers: "bundled",
+      babelHelpers: "bundled",
       exclude: "node_modules/**",
     }),
     filesize()
