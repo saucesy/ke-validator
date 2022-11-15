@@ -175,9 +175,9 @@ curl -i http://localhost:3000 -d "username=test123&password=12345678&repassword=
 
 - 多方式取值
 
-  - 使用 `get` 方法取值，[查看实现](https://github.com/saucesy/ke-validator/blob/main/src/utils/get.js)
+  - 使用 `get` 方法取值，[查看实现](https://github.com/saucesy/ke-validator/blob/main/src/lib/utils/get.js)
 
-  - 使用 `.` 运算符取值和改值，[查看实现](https://github.com/saucesy/ke-validator/blob/main/src/utils/proxyData.js)
+  - 使用 `.` 运算符取值和改值，[查看实现](https://github.com/saucesy/ke-validator/blob/main/src/lib/utils/proxyData.js)
 
 ## Trilogy
 
