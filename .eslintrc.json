@@ -22,6 +22,6 @@
       "double"
     ],
     "no-unused-vars": "warn",
-    "no-use-before-define": "warn"
+    "no-use-before-define": "off"
   }
 }
