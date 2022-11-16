@@ -1,6 +1,6 @@
 {
   "name": "ke-validator",
-  "version": "1.6.9",
+  "version": "1.6.10",
   "description": "Lightweight and fast verifier for Koajs and Expressjs.",
   "main": "ke-validator.js",
   "type": "module",
