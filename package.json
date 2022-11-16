@@ -15,6 +15,10 @@
     "library",
     "validator"
   ],
+  "files": [
+    "es",
+    "ke-validator.js"
+  ],
   "scripts": {
     "test": "jest --watch test",
     "clean": "rimraf dist",
