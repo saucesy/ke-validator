@@ -10,12 +10,12 @@ export default {
   external: ["validator"],
   output: [
     {
-      file: "dist/ke-validator.cjs.js",
-      format: "cjs",
+      file: "es/index.js",
+      format: "es",
     },
     {
-      file: "dist/ke-validator.es.js",
-      format: "es",
+      file: "ke-validator.js",
+      format: "cjs",
     },
   ],
   plugins: [
