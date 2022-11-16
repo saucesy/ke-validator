@@ -1,4 +1,5 @@
 import isObject from "./isObject.js";
+
 /**
  * 根据深度depth代理对象
  * @param vm
@@ -20,7 +21,8 @@ function proxyData(vm, target, depth = 1) {
         set(newValue) {
           target[key] = newValue;
         },
-      },
+        configurable: true
+      }
     );
   }
 }

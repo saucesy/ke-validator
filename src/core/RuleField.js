@@ -1,4 +1,4 @@
-import RuleFieldResult from "./RuleFieldResult.js";
+import RuleResult from "./RuleResult.js";
 
 class RuleField {
   constructor(rules) {
@@ -6,28 +6,29 @@ class RuleField {
   }
   
   validate({key, value}) {
+    const result = new RuleResult(true);
+    
+    // 如果值不存在，则判断是否为可选的
     if (!value) {
       const isAllowEmpty = this._allowEmpty();
-      
-      if (isAllowEmpty) {
-        return new RuleFieldResult(true, "");
-      } else {
-        return new RuleFieldResult(false, key + " 字段是必填参数");
+      if (!isAllowEmpty) {
+        result.setPass(false);
+        result.setMessage(key + " 字段是必填参数");
       }
+      return result;
     }
     
-    const fieldResult = new RuleFieldResult(false);
-    
+    // 遍历每一个规则，当发现有一个规则不通过，则立即退出
     for (const rule of this.rules) {
-      const result = rule.validate(value);
-      if (!result.pass) {
-        fieldResult.value = null;
-        fieldResult.message = result.message;
-        return fieldResult;
+      const ruleResult = rule.validate(value);
+      if (!ruleResult.pass) {
+        result.setPass(false);
+        result.setMessage(ruleResult.message);
+        return result;
       }
     }
     
-    return new RuleFieldResult(true, "", this._convert(value));
+    return result;
   }
   
   /**
@@ -35,32 +36,14 @@ class RuleField {
    * @private
    */
   _allowEmpty() {
+    let isOptional = false;
     for (const rule of this.rules) {
       if (rule.name === "isOptional") {
-        return true;
+        isOptional = true;
+        break;
       }
     }
-    return false;
-  }
-  
-  /**
-   * @param value
-   * @return {boolean|number|*}
-   * @private
-   */
-  _convert(value) {
-    for (const rule of this.rules) {
-      if (rule.name === "isInt") {
-        return Number.parseInt(value);
-      }
-      if (rule.name === "isFloat") {
-        return Number.parseFloat(value);
-      }
-      if (rule.name === "isBoolean") {
-        return !!value;
-      }
-    }
-    return value;
+    return isOptional;
   }
 }
 
