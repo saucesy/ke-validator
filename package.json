@@ -18,8 +18,8 @@
     "es",
     "ke-validator.js",
     "LICENSE",
-    "README.md",
-    "package.json"
+    "package.json",
+    "README.md"
   ],
   "scripts": {
     "test": "jest --watch test",
